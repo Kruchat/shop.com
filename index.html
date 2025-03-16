@@ -22,31 +22,31 @@
         const form = document.getElementById('myForm');
         const result = document.getElementById('result');
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
             const data = { firstName, lastName };
 
-            fetch('https://script.google.com/macros/s/AKfycbwQZwNIFoM1enmpjYR0ucy7NfquWiBCZFhIwsrlhKDdLoxmxsSL_y7eP5Iwb0p4mD2WbQ/exec', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.text())
-            .then(text => {
-                if (text === 'Success') {
+            try {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbwQZwNIFoM1enmpjYR0ucy7NfquWiBCZFhIwsrlhKDdLoxmxsSL_y7eP5Iwb0p4mD2WbQ/exec', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                const text = await response.text();
+                if (response.ok && text === 'Success') {
                     result.textContent = 'บันทึกสำเร็จ!';
                     form.reset();
                 } else {
-                    result.textContent = 'เกิดข้อผิดพลาด: ' + text;
+                    result.textContent = `เกิดข้อผิดพลาด: ${text} (Status: ${response.status})`;
                 }
-            })
-            .catch(error => {
-                result.textContent = 'เกิดข้อผิดพลาด: ' + error.message;
-            });
+            } catch (error) {
+                result.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
+                console.error('Fetch error:', error);
+            }
         });
     </script>
 </body>
