@@ -250,7 +250,7 @@
 
         const incomeCategories = ['ขายไข่ไก่', 'ขายไก่', 'อื่นๆ'];
         const expenseCategories = ['ค่าอาหารไก่', 'ค่ายา', 'ค่าซ่อมบำรุง', 'ค่าน้ำ/ไฟ', 'อื่นๆ'];
-        const GOOGLE_SHEET_API = 'https://script.google.com/macros/s/AKfycbxXz5GjANRzMCJj_9hxQczh2YwX_Vpnmh6BIdjWc23HiGUSdYqRmYsIs6D295D8-FfGhg/exec'; // แทนที่ด้วย URL จริงจาก Apps Script
+        const GOOGLE_SHEET_API = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL'; // แทนที่ด้วย URL จาก Apps Script
 
         function showScreen(screen) {
             document.getElementById('mainScreen').classList.add('hidden');
@@ -317,7 +317,6 @@
                 date: new Date().toLocaleString('th-TH')
             };
 
-            // ส่งข้อมูลไปยัง Google Sheets
             fetch(GOOGLE_SHEET_API, {
                 method: 'POST',
                 body: JSON.stringify(entry),
@@ -327,7 +326,7 @@
             .then(data => {
                 if (data.status === 'success') {
                     alert('บันทึกสำเร็จ!');
-                    filterHistory(); // อัปเดตประวัติทันทีหลังบันทึก
+                    filterHistory(); // อัปเดตประวัติทันที
                     backToMain();
                 } else {
                     alert('เกิดข้อผิดพลาด: ' + data.message);
@@ -341,11 +340,9 @@
             const categoryFilter = document.getElementById('categoryFilter').value;
             const searchNote = document.getElementById('searchNote').value.toLowerCase();
 
-            // ดึงข้อมูลจาก Google Sheets
             fetch(GOOGLE_SHEET_API, { method: 'GET' })
             .then(response => response.json())
             .then(data => {
-                // ข้ามแถวแรก (หัวตาราง) และแปลงข้อมูล
                 entries = data.slice(1).map(row => ({
                     date: row[0],
                     type: row[1] === "รายรับ" ? "income" : "expense",
@@ -354,7 +351,6 @@
                     note: row[4]
                 }));
 
-                // กรองข้อมูลตามตัวเลือก
                 const filteredEntries = entries.filter(entry => {
                     return (
                         (!typeFilter || entry.type === typeFilter) &&
@@ -363,7 +359,6 @@
                     );
                 });
 
-                // แสดงประวัติในตาราง
                 const history = document.getElementById('history');
                 history.innerHTML = '';
                 filteredEntries.forEach(entry => {
@@ -379,7 +374,6 @@
                     history.appendChild(tr);
                 });
 
-                // คำนวณยอดรวม
                 const totalIncome = filteredEntries.filter(e => e.type === 'income').reduce((sum, e) => sum + e.amount, 0);
                 const totalExpense = filteredEntries.filter(e => e.type === 'expense').reduce((sum, e) => sum + e.amount, 0);
                 const profit = totalIncome - totalExpense;
